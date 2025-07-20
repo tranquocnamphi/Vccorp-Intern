@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hệ thống Hỏi Đáp Giá Tiền Điện Tử</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .columns { margin-bottom: 20px; color: #555; }
+        input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 12px 24px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; }
+        .result pre { white-space: pre-wrap; }
+        .examples { font-size: 0.9em; color: #666; }
+        .query { font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hệ thống Hỏi Đáp Giá Tiền Điện Tử</h1>
+        <div class="columns">
+            <p><strong>Các cột dữ liệu có sẵn:</strong> {{ columns|join(", ") }}</p>
+            <p><strong>Các đồng coin:</strong> BTC, XMR</p>
+            <p class="examples"><strong>Ví dụ câu hỏi:</strong></p>
+            <ul class="examples">
+                <li>"Tổng volume của coin BTC"</li>
+                <li>"Giá close lớn nhất nơi coin là XMR"</li>
+                <li>"Giá open nơi ngày là 2020-07-21"</li>
+                <li>"Trung bình close của coin BTC nơi ngày là 2021-01-01"</li>
+            </ul>
+        </div>
+        <form method="POST">
+            <input type="text" name="query" placeholder="Nhập câu hỏi của bạn..." required>
+            <button type="submit">Gửi</button>
+        </form>
+        {% if result %}
+        <div class="result">
+            <h3>Kết quả:</h3>
+            {% if query %}
+            <p class="query">Câu hỏi: {{ query }}</p>
+            {% endif %}
+            <pre>{{ result }}</pre>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
