@@ -1,0 +1,138 @@
+# Hệ thống Truy vấn Dữ liệu Tiền điện tử
+
+## Giới thiệu
+
+Dự án này cung cấp một ứng dụng web để truy vấn và phân tích dữ liệu thị trường tiền điện tử sử dụng API CryptoCompare và tự động hóa quy trình làm việc thông qua n8n. Người dùng có thể nhập các truy vấn bằng ngôn ngữ tự nhiên (hỗ trợ cả tiếng Anh và tiếng Việt) để lấy các chỉ số như giá đóng cửa trung bình hoặc tối đa và khối lượng giao dịch cho các loại tiền điện tử cụ thể trong các khung thời gian được xác định. Hệ thống được triển khai bằng Docker Compose, tích hợp Flask, n8n, PostgreSQL và Nginx để đảm bảo hiệu suất, bảo mật và khả năng mở rộng.
+
+## Tính năng
+
+- **Xử lý Ngôn ngữ Tự nhiên**: Phân tích các truy vấn như "giá đóng cửa trung bình của BTC trong USD" hoặc "khối lượng tối đa của ETH trong 2 năm".
+- **Tự động hóa Quy trình làm việc**: Tạo và thực thi các quy trình làm việc n8n động để lấy và xử lý dữ liệu từ CryptoCompare.
+- **Triển khai Container hóa**: Sử dụng Docker Compose để quản lý các dịch vụ Flask, n8n, PostgreSQL và Nginx.
+- **Bảo mật**: Quản lý khóa API và mật khẩu thông qua bí mật Docker và biến môi trường.
+- **Độ tin cậy**: Xử lý lỗi mạnh mẽ với cơ chế thử lại và dự phòng cho webhook và API.
+
+## Công nghệ Sử dụng
+
+- **Backend**: Python 3.9 (Flask 2.0.1), n8n (1.110.1)
+- **Cơ sở dữ liệu**: PostgreSQL 15
+- **Máy chủ Web**: Nginx
+- **Container hóa**: Docker, Docker Compose (phiên bản 3.8)
+- **API**: CryptoCompare (dữ liệu thị trường), n8n (tự động hóa quy trình làm việc)
+- **Phụ thuộc Python**:
+  - Flask==2.0.1
+  - requests==2.26.0
+  - python-dotenv==0.19.0
+  - werkzeug==2.0.3
+
+## Cấu trúc Dự án
+
+```
+├── .env                    # Biến môi trường (API keys)
+├── docker-compose.yml      # Cấu hình Docker Compose
+├── Dockerfile              # Dockerfile cho ứng dụng Flask
+├── requirements.txt        # Phụ thuộc Python
+├── app.py                  # Ứng dụng Flask chính
+├── nginx.conf              # Cấu hình Nginx
+├── secrets/                # Thư mục chứa bí mật Docker
+│   ├── postgres_password.txt
+│   ├── n8n_api_key.txt
+└── templates/              # Thư mục chứa các mẫu HTML
+    └── index.html
+```
+
+## Yêu cầu Cài đặt
+
+- Docker và Docker Compose
+- Python 3.9 (cho phát triển cục bộ, nếu cần)
+- Truy cập vào API CryptoCompare (yêu cầu khóa API)
+
+## Hướng dẫn Cài đặt
+
+1. **Sao chép Kho lưu trữ**:
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
+
+2. **Tạo tệp `.env`**:
+   Tạo một tệp `.env` trong thư mục gốc với nội dung sau, thay thế bằng các khóa API thực tế:
+   ```plaintext
+   GEMINI_API_KEY=your_gemini_api_key
+   CRYPTOCOMPARE_API_KEY=your_cryptocompare_api_key
+   N8N_API_KEY=your_n8n_api_key
+   ```
+
+3. **Tạo Bí mật Docker**:
+   Tạo thư mục `secrets/` và thêm hai tệp:
+   - `secrets/postgres_password.txt`: Chứa mật khẩu PostgreSQL.
+   - `secrets/n8n_api_key.txt`: Chứa khóa API n8n.
+
+4. **Khởi động Dịch vụ**:
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Truy cập Ứng dụng**:
+   - Mở trình duyệt và truy cập `http://localhost` để sử dụng giao diện web.
+   - n8n có thể truy cập tại `http://localhost:5678` (nếu cần cấu hình bổ sung).
+
+6. **Dừng Dịch vụ**:
+   ```bash
+   docker-compose down
+   ```
+
+## Sử dụng
+
+1. **Gửi Truy vấn**:
+   - Truy cập giao diện web tại `http://localhost`.
+   - Nhập các truy vấn như:
+     - "Giá đóng cửa trung bình của BTC trong USD"
+     - "Khối lượng tối đa của ETH từ 2023 đến nay"
+   - Hệ thống sẽ phân tích truy vấn, tạo một quy trình làm việc n8n, lấy dữ liệu từ CryptoCompare và trả về kết quả.
+
+2. **Định dạng Truy vấn Hỗ trợ**:
+   - Chỉ số: `avg`, `average`, `trung bình`, `max`, `tối đa`, `lớn nhất`
+   - Trường: `close price`, `giá đóng cửa`, `giá close`, `giá`, `volume`, `khối lượng`
+   - Tiền điện tử: Bất kỳ mã hợp lệ (ví dụ: BTC, ETH)
+   - Tiền tệ: USD hoặc các loại tiền tệ khác do CryptoCompare hỗ trợ
+   - Khung thời gian: `1y`, `2y`, `3y`, `từ 2022 đến nay`, v.v.
+
+## Quy trình làm việc
+
+1. **Phân tích Cú pháp Truy vấn**: Ứng dụng Flask phân tích truy vấn của người dùng bằng biểu thức chính quy.
+2. **Tạo Quy trình làm việc**: Một quy trình làm việc n8n được tạo động với các nút Webhook, CryptoCompare và Calculate.
+3. **Thực thi**: Quy trình làm việc được kích hoạt và thực thi thông qua webhook hoặc API, với các cơ chế dự phòng.
+4. **Xử lý Kết quả**: Kết quả được lấy từ n8n và hiển thị cho người dùng.
+
+## Bảo mật
+
+- **Khóa API**: Được lưu trữ an toàn trong `.env` và bí mật Docker.
+- **Xác thực n8n**: Được kích hoạt để bảo vệ các hoạt động quy trình làm việc.
+- **Mạng Nội bộ**: Các dịch vụ giao tiếp qua mạng Docker riêng (`n8n_network`).
+
+## Khắc phục Sự cố
+
+- **Kiểm tra Log**:
+  ```bash
+  docker-compose logs
+  ```
+- **Lỗi Webhook**: Đảm bảo n8n đã được kích hoạt và webhook đã được đăng ký (chờ 30 giây sau khi tạo).
+- **Lỗi API**: Kiểm tra tính hợp lệ của khóa API trong `.env` và `secrets/`.
+- **Kết nối Cơ sở dữ liệu**: Đảm bảo PostgreSQL đang chạy (`pg_isready`).
+
+## Cải tiến Tương Lai
+
+- Hỗ trợ các truy vấn phức tạp hơn (ví dụ: nhiều chỉ số, khoảng ngày tùy chỉnh).
+- Thêm bộ nhớ đệm để giảm tải API.
+- Cải thiện giao diện người dùng với hình ảnh hóa dữ liệu.
+- Tích hợp các công cụ giám sát (ví dụ: Prometheus, Grafana).
+- Mở rộng hỗ trợ đa ngôn ngữ.
+
+## Đóng góp
+
+Vui lòng gửi các yêu cầu kéo (pull requests) hoặc báo cáo vấn đề (issues) qua kho lưu trữ GitHub. Đảm bảo tuân theo các tiêu chuẩn mã hóa và bao gồm các bài kiểm tra cho các tính năng mới.
+
+## Giấy phép
+
+Dự án này được cấp phép theo [Giấy phép MIT](LICENSE).

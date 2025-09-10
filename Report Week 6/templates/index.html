@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Crypto Price Metrics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #result, #error {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #result {
+            background-color: #e0f7fa;
+        }
+        #error {
+            background-color: #ffebee;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculate Crypto Price Metrics</h1>
+    <form id="queryForm">
+        <input type="text" name="query" placeholder="Enter query (e.g., 'Calculate avg price of BTC in USD for 1y')" required>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
+    <div id="error"></div>
+    <script>
+        document.getElementById('queryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.getElementById('result').innerText = '';
+            document.getElementById('error').innerText = 'Loading...';
+            
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch('/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                document.getElementById('error').innerText = '';
+                if (data.error) {
+                    document.getElementById('error').innerText = `Error: ${data.error}`;
+                } else {
+                    document.getElementById('result').innerText = JSON.stringify(data.result, null, 2);
+                }
+            } catch (err) {
+                document.getElementById('error').innerText = `Request failed: ${err.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
